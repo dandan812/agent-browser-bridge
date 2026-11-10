@@ -16,7 +16,9 @@
 
 import { RelayConnection, debugLog } from './relayConnection';
 
-const PLAYWRIGHT_GROUP_TITLE = 'Playwright';
+// Do not share Playwright's namespace: its extension cleans matching groups
+// whenever its MV3 worker wakes up, including on unrelated tab removals.
+const PLAYWRIGHT_GROUP_TITLE = 'Agent Browser Bridge';
 const PLAYWRIGHT_GROUP_TITLE_PREFIX = `${PLAYWRIGHT_GROUP_TITLE} · `;
 // Green first, so a lone connection keeps the familiar look.
 const PLAYWRIGHT_GROUP_COLORS: GroupColor[] = ['green', 'blue', 'purple', 'orange', 'pink', 'cyan', 'yellow', 'red'];
@@ -46,7 +48,7 @@ export function uniqueGroupStyle(clientName: string | undefined, taken: readonly
   return { title, color };
 }
 
-// Ungroups any Playwright-titled groups left behind by a prior service worker.
+// Only clean this bridge's namespace, never the official Playwright groups.
 export async function cleanupStalePlaywrightGroups(): Promise<void> {
   try {
     const groups = await chrome.tabGroups.query({});
@@ -157,6 +159,8 @@ export class ConnectedTabGroup {
         this._connection.attachTab(tab);
     } else {
       this._groupTabIds.delete(tabId);
+      if (this._groupTabIds.size === 0)
+        this._groupId = null;
       if (this._connection.attachedTabs.has(tabId))
         this._connection.detachTab(tabId);
     }
@@ -164,6 +168,8 @@ export class ConnectedTabGroup {
 
   private _onTabRemoved(tabId: number): void {
     this._groupTabIds.delete(tabId);
+    if (this._groupTabIds.size === 0)
+      this._groupId = null; // Chrome removes an empty group automatically.
   }
 
   private _onTabAttached(tabId: number): void {

@@ -1,0 +1,26 @@
+[
+  {
+    "browser": "chrome",
+    "passed": [
+      "three-repeated-close-cycles",
+      "empty-session-reusable",
+      "A-disconnect-preserves-B",
+      "A-reconnect-preserves-B",
+      "user-page-preserved",
+      "active-tab-unchanged",
+      "normal-background-throttling"
+    ]
+  },
+  {
+    "browser": "edge",
+    "passed": [
+      "three-repeated-close-cycles",
+      "empty-session-reusable",
+      "A-disconnect-preserves-B",
+      "A-reconnect-preserves-B",
+      "user-page-preserved",
+      "active-tab-unchanged",
+      "normal-background-throttling"
+    ]
+  }
+]

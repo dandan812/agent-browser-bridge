@@ -82,8 +82,6 @@ export class RelayConnection {
   private _ws: WebSocket;
   // Tabs whose debugger we have explicitly attached for this connection.
   private _attachedTabs = new Set<number>();
-  // Once we've attached at least one tab, detaching the last one closes the connection.
-  private _hasEverAttached = false;
   private _eventListeners: Array<{ remove: () => void }> = [];
   private _closed = false;
   private _pendingReattach = new Set<number>();
@@ -153,12 +151,10 @@ export class RelayConnection {
       method: 'chrome.debugger.onDetach',
       params: [{ tabId }, 'target_closed'],
     });
-    this._checkLastTabDetached();
   }
 
   private _notifyTabAttached(tabId: number): void {
     this._attachedTabs.add(tabId);
-    this._hasEverAttached = true;
     this._pendingReattach.delete(tabId);
     this.ontabattached?.(tabId);
   }
@@ -205,16 +201,22 @@ export class RelayConnection {
     this.onclose?.();
   }
 
-  private _checkLastTabDetached(): void {
-    if (this._hasEverAttached && this._attachedTabs.size === 0 && this._pendingReattach.size === 0)
-      this.close('All controlled tabs detached');
-  }
-
   // Forwards chrome.* events concerning attached tabs to the relay, then runs
   // shared detach bookkeeping.
   private _onChromeEvent(fullMethod: string, args: any[]): void {
     const tabId = this._tabIdForEventArgs(fullMethod, args);
-    if (tabId === undefined || !this._attachedTabs.has(tabId))
+    if (tabId === undefined || !this.ownsTab(tabId))
+      return;
+    if (fullMethod === 'chrome.tabs.onRemoved') {
+      this._pendingReattach.delete(tabId);
+      this._recentReattach.delete(tabId);
+      this._notifyTabDetached(tabId);
+      this._eligibleTabs.delete(tabId);
+      RelayConnection._owners.delete(tabId);
+      this._sendMessage({ method: fullMethod, params: args });
+      return;
+    }
+    if (!this._attachedTabs.has(tabId))
       return;
     if (fullMethod === 'chrome.tabs.onCreated') {
       const tab = args[0] as chrome.tabs.Tab;
@@ -228,7 +230,6 @@ export class RelayConnection {
       this._notifyTabDetached(tabId);
       if (reason === 'target_closed' && this._maybeScheduleReattach(tabId))
         return;
-      this._checkLastTabDetached();
     }
   }
 
@@ -258,7 +259,6 @@ export class RelayConnection {
       tab = await chrome.tabs.get(tabId);
     } catch {
       this._pendingReattach.delete(tabId);
-      this._checkLastTabDetached();
       return;
     }
     if (this._reattachAborted(tabId))
@@ -272,8 +272,6 @@ export class RelayConnection {
       if (this._reattachAborted(tabId))
         return;
       this._pendingReattach.delete(tabId);
-      if (!this._attachedTabs.has(tabId))
-        this._checkLastTabDetached();
     }, REATTACH_VERIFY_MS);
   }
 
