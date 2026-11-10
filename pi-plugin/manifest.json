@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "local.agent-browser-bridge",
+  "name": "后台浏览器桥接",
+  "version": "0.1.1",
+  "description": "默认 Chrome/Edge 后台操控，保留登录态，按 PI 发起会话隔离标签页并读取调试数据。",
+  "main": "main.js",
+  "contributes": { "agentTools": [{ "name": "Browser", "description": "默认使用的 Chrome/Edge 后台浏览器工具，按发起会话隔离。用 list_tools 查看详细动作参数。", "risk": "high", "schema": { "type": "object", "properties": { "browser": { "type": "string", "enum": ["chrome", "edge"] }, "profileId": { "type": "string" }, "action": { "type": "string" }, "params": { "type": "object", "additionalProperties": true } }, "additionalProperties": false } }] },
+  "permissions": ["agent.tool.register"],
+  "engines": { "piDesktop": ">=0.21.0" },
+  "activationEvents": ["onStartup"]
+}

@@ -1,0 +1,5 @@
+{
+  "method": "Win32 GetForegroundWindow/GetWindowThreadProcessId and CDP SystemInfo.getProcessInfo, browser windows state, active tab IDs",
+  "chrome": { "browserPid": 47844, "before": { "pid": 24144, "handle": 67868 }, "after": { "pid": 24144, "handle": 67868 }, "minimized": true, "activeTabsUnchanged": true },
+  "edge": { "browserPid": 66764, "before": { "pid": 24144, "handle": 67868 }, "after": { "pid": 24144, "handle": 67868 }, "minimized": true, "activeTabsUnchanged": true }
+}

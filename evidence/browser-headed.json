@@ -1,0 +1,40 @@
+[
+  {
+    "browser": "chrome",
+    "version": "157.0.8103.38",
+    "mode": "headed",
+    "passed": [
+      "extension-loaded",
+      "mcp-stdio",
+      "existing-httpOnly-cookie",
+      "parallel-agent-tabs",
+      "independent-page-state",
+      "console",
+      "network-response-details",
+      "DOM-CDP",
+      "unsafe-CDP-rejected",
+      "no-tab-activation",
+      "disconnect-preserves-other-agent",
+      "user-tab-preserved"
+    ]
+  },
+  {
+    "browser": "edge",
+    "version": "157.0.4341.42",
+    "mode": "headed",
+    "passed": [
+      "extension-loaded",
+      "mcp-stdio",
+      "existing-httpOnly-cookie",
+      "parallel-agent-tabs",
+      "independent-page-state",
+      "console",
+      "network-response-details",
+      "DOM-CDP",
+      "unsafe-CDP-rejected",
+      "no-tab-activation",
+      "disconnect-preserves-other-agent",
+      "user-tab-preserved"
+    ]
+  }
+]

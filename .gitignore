@@ -1,0 +1,9 @@
+node_modules/
+.local/
+dist/
+artifacts/
+mcp.config.json
+**/.local/
+release/
+pi-plugin/dist/
+*.log

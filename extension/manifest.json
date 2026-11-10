@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Agent 浏览器桥接",
+  "version": "0.1.0",
+  "description": "通过本机 Playwright MCP 桥接，在当前 Chrome / Edge 登录态中为各 Agent 分配独占后台标签页。",
+  "minimum_chrome_version": "120",
+  "permissions": ["debugger", "tabs", "tabGroups", "storage", "alarms"],
+  "host_permissions": ["http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "lib/background.mjs",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Agent 浏览器桥接",
+    "default_popup": "status.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*"
+  }
+}
