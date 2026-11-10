@@ -5,9 +5,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { readConfig, bridgeRequest } from './config.mjs';
+import { readConfig, bridgeRequest, root } from './config.mjs';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
 
 export const blockedTools = new Set(['browser_run_code_unsafe', 'browser_install', 'browser_annotate', 'browser_start_recording', 'browser_stop_recording', 'browser_start_video', 'browser_stop_video']);
 export { cdpMethods } from './devtools.mjs';
@@ -33,7 +34,7 @@ export async function createAgentServer({ config, browser = 'chrome', profileId,
     if (connection) { await connection.close().catch(() => {}); connection = undefined; }
     if (previous) await bridgeRequest(config, `/sessions/${previous.id}`, { method: 'DELETE' }).catch(() => {});
   }
-  const upstream = await createConnection({ background: true, webmcp: false, codegen: 'none', console: { level: 'debug' }, redactUrlParams: ['access_token', 'token', 'code', 'api_key'], outputDir: 'artifacts', capabilities: ['core'] }, contextGetter);
+  const upstream = await createConnection({ background: true, webmcp: false, codegen: 'none', console: { level: 'debug' }, redactUrlParams: ['access_token', 'token', 'code', 'api_key'], outputDir: join(root, 'artifacts'), capabilities: ['core'] }, contextGetter);
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   const client = new Client({ name: clientName, version: '0.1.0' });
   await upstream.connect(serverTransport);

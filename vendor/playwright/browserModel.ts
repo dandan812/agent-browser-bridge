@@ -234,6 +234,10 @@ export class BrowserModel {
     if (existing)
       return existing;
     await this._extension.send('chrome.debugger.attach', [{ tabId }, '1.3']);
+    // Hidden personal-profile tabs otherwise pause requestAnimationFrame,
+    // including Playwright's actionability checks. This does not activate tabs.
+    if (this._background)
+      await this._extension.send('chrome.debugger.sendCommand', [{ tabId }, 'Emulation.setFocusEmulationEnabled', { enabled: true }]);
     const result = await this._extension.send('chrome.debugger.sendCommand', [{ tabId }, 'Target.getTargetInfo']);
     const targetInfo = result?.targetInfo;
     const sessionId = `pw-tab-${this._nextSessionId++}`;
